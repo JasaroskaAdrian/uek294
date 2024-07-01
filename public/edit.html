@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produkt bearbeiten</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Produkt bearbeiten</h1>
+    <form id="editForm">
+        <input type="hidden" id="productId">
+        <label for="name">Name:</label>
+        <input type="text" id="name">
+        <label for="price">Preis:</label>
+        <input type="text" id="price">
+        <label for="category">Kategorie:</label>
+        <input type="text" id="category">
+        <label for="image">Bild URL:</label>
+        <input type="text" id="image">
+        <button type="submit">Speichern</button>
+    </form>
+    <script src="scripts.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const productId = new URLSearchParams(window.location.search).get('id');
+            ajax({
+                method: 'GET',
+                url: '/products/' + productId,
+                success: function(product) {
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('name').value = product.name;
+                    document.getElementById('price').value = product.price;
+                    document.getElementById('category').value = product.categoryId;
+                    document.getElementById('image').value = product.image;
+                },
+                error: function(status, responseText) {
+                    console.error('Error fetching product:', status, responseText);
+                }
+            });
+
+            document.getElementById('editForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const id = document.getElementById('productId').value;
+                const name = document.getElementById('name').value;
+                const price = document.getElementById('price').value;
+                const categoryId = document.getElementById('category').value;
+                const image = document.getElementById('image').value;
+                ajax({
+                    method: 'PUT',
+                    url: '/products/' + id,
+                    data: { name, price, categoryId, image },
+                    success: function() {
+                        alert('Produkt aktualisiert');
+                    },
+                    error: function(status, responseText) {
+                        console.error('Error updating product:', status, responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

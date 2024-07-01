@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produktdetails anzeigen</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Produktdetails</h1>
+    <div id="productDetails"></div>
+    <script src="scripts.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const productId = new URLSearchParams(window.location.search).get('id');
+            ajax({
+                method: 'GET',
+                url: '/products/' + productId,
+                success: function(product) {
+                    const productDetailsDiv = document.getElementById('productDetails');
+                    productDetailsDiv.innerHTML = `
+                        <div class="product">
+                            <h2>${product.name}</h2>
+                            <p>Preis: ${product.price} €</p>
+                            <p>Kategorie: ${product.categoryId}</p>
+                            <img src="${product.image}" alt="${product.name}">
+                        </div>
+                    `;
+                },
+                error: function(status, responseText) {
+                    console.error('Error fetching product:', status, responseText);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

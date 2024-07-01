@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm">
+        <label for="username">Benutzername:</label>
+        <input type="text" id="username" required>
+        <label for="password">Passwort:</label>
+        <input type="password" id="password" required>
+        <button type="submit">Login</button>
+    </form>
+    <script src="scripts.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            ajax({
+                method: 'POST',
+                url: '/login',
+                data: { username, password },
+                success: function(response) {
+                    localStorage.setItem('token', response.token);
+                    window.location.href = 'index.html';
+                },
+                error: function(status, responseText) {
+                    console.error('Login error:', status, responseText);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

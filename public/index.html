@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produkte verwalten</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Produktverwaltung</h1>
+
+    <!-- Formular zum Hinzufügen eines neuen Produkts -->
+    <form id="addProductForm">
+        <h2>Neues Produkt hinzufügen</h2>
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+        <label for="price">Preis:</label>
+        <input type="number" id="price" required>
+        <label for="category">Kategorie:</label>
+        <input type="text" id="category" required>
+        <label for="image">Bild URL:</label>
+        <input type="text" id="image" required>
+        <button type="submit">Hinzufügen</button>
+    </form>
+
+    <h2>Produkte</h2>
+    <div id="products"></div>
+
+    <script src="scripts.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Funktion zum Laden der Produkte
+            function loadProducts() {
+                ajax({
+                    method: 'GET',
+                    url: '/products',
+                    success: function(products) {
+                        const productsDiv = document.getElementById('products');
+                        productsDiv.innerHTML = '';
+                        products.forEach(product => {
+                            const productDiv = document.createElement('div');
+                            productDiv.className = 'product';
+                            productDiv.innerHTML = `
+                                <h3>${product.name}</h3>
+                                <p>Preis: ${product.price} €</p>
+                                <p>Kategorie: ${product.categoryId}</p>
+                                <img src="${product.image}" alt="${product.name}">
+                                <button onclick="editProduct(${product.id})">Bearbeiten</button>
+                                <button onclick="deleteProduct(${product.id})">Löschen</button>
+                            `;
+                            productsDiv.appendChild(productDiv);
+                        });
+                    },
+                    error: function(status, responseText) {
+                        console.error('Error fetching products:', status, responseText);
+                    }
+                });
+            }
+
+            // Laden der Produkte beim Laden der Seite
+            loadProducts();
+
+            // Ereignislistener für das Hinzufügen eines neuen Produkts
+            document.getElementById('addProductForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const name = document.getElementById('name').value;
+                const price = document.getElementById('price').value;
+                const categoryId = document.getElementById('category').value;
+                const image = document.getElementById('image').value;
+                
+                console.log("Produktdaten:", { name, price, categoryId, image }); // Debugging
+
+                ajax({
+                    method: 'POST',
+                    url: '/products',
+                    data: { name, price, categoryId, image },
+                    success: function() {
+                        loadProducts();
+                        document.getElementById('addProductForm').reset();
+                    },
+                    error: function(status, responseText) {
+                        console.error('Error adding product:', status, responseText);
+                    }
+                });
+            });
+
+            // Funktion zum Bearbeiten eines Produkts
+            window.editProduct = function(id) {
+                window.location.href = `edit.html?id=${id}`;
+            }
+
+            // Funktion zum Löschen eines Produkts
+            window.deleteProduct = function(id) {
+                ajax({
+                    method: 'DELETE',
+                    url: `/products/${id}`,
+                    success: function() {
+                        loadProducts();
+                    },
+                    error: function(status, responseText) {
+                        console.error('Error deleting product:', status, responseText);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
